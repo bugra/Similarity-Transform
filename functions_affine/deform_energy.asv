@@ -1,0 +1,22 @@
+function [ energy ] = deform_energy(I, eigen_phis, eigen_value, mean_value, alph)
+
+[col row slice n] = size(eigen_value);
+recons_phi = zeros(size(mean_value));
+for i=1:n
+    recons_phi = recons_phi + eigen_phi(:,:,:,i).*alph(i);
+end
+recons_phi = recons_phi + mean_phi;
+
+recons_in   = I(recons_phi>=0);
+recons_out  = I(recons_phi<0);
+varIn       = var(recons_in);
+meanIn      = mean(recons_in);
+varOut      = var(recons_out);
+meanOut     = mean(recons_out);
+
+dataE = sum((recons_in-meanIn).^2)/(2*varIn) + sum((recons_out-meanOut).^2)/(2*varOut) + log(varIn) + log(varOut);
+shapeE = 0.5 * (alph'*inv(eigen_value)*alph);
+
+energy = dataE + shapeE;
+
+
